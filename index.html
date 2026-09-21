@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise for Chelli! 🎉</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body { font-family: 'Poppins', sans-serif; overflow: hidden; color: white; text-align: center; user-select: none; }
+
+        .page { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; padding: 20px; position: absolute; top: 0; left: 0; width: 100%; }
+        .active { display: flex; animation: pageEnter 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+        @keyframes pageEnter { 0% { transform: scale(0.9) translateY(40px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+
+        /* --- Online Image Backgrounds --- */
+        #page1 { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1920') center/cover; }
+        #page2 { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=1920') center/cover; }
+        #page3 { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1502635385003-ee1e6a1a742d?q=80&w=1920') center/cover; }
+        #page4 { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?q=80&w=1920') center/cover; }
+        #page5 { background: #111; transition: background 1.5s ease; } 
+
+        .content { display: none; flex-direction: column; align-items: center; animation: popIn 0.8s forwards; width: 100%; }
+        .show-content { display: flex !important; }
+        .hidden { display: none !important; }
+        
+        h1 { font-size: 2.8rem; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); text-align: center; }
+        h2 { margin-bottom: 20px; font-weight: 600; font-size: 1.8rem; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); text-align: center; }
+        p { font-size: 1.2rem; margin-bottom: 30px; max-width: 600px; line-height: 1.6; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); text-align: center; }
+        
+        .next-btn { padding: 12px 30px; font-size: 1.2rem; font-weight: 600; color: #333; background: #fff; border: none; border-radius: 30px; cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.2s; margin-top: 20px; }
+        .next-btn:hover { transform: scale(1.1) translateY(-5px); background: #ffeaa7; }
+
+        /* --- 1. Realistic Archery --- */
+        .archery-container { display: flex; align-items: center; position: relative; width: 350px; height: 150px; margin: 0 auto; }
+        .bow-svg { position: absolute; left: 30px; width: 70px; height: 160px; z-index: 2; pointer-events: none; }
+        .arrow-wrapper { position: absolute; left: 40px; width: 140px; height: 40px; z-index: 3; cursor: grab; display: flex; align-items: center; justify-content: center; transform-origin: left center; }
+        .arrow-wrapper:active { cursor: grabbing; }
+        .arrow-svg { width: 100%; height: 25px; filter: drop-shadow(0px 5px 3px rgba(0,0,0,0.5)); }
+        .heart-target { position: absolute; right: 10px; font-size: 4.5rem; transition: transform 0.2s; z-index: 1; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); }
+        .vibrate-string { animation: twang 0.3s ease-in-out; }
+        @keyframes twang { 0% { transform: translateX(0); } 25% { transform: translateX(10px); } 50% { transform: translateX(-8px); } 75% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+
+        /* --- 2. Smooth 3D Gift Box --- */
+        .gift-container { position: relative; width: 150px; height: 160px; margin: 20px auto; cursor: pointer; perspective: 1000px; }
+        .gift-container:hover .gift-box { transform: scale(1.05) rotateY(10deg); }
+        .gift-box { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.3s; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.6)); }
+        .gift-bottom { position: absolute; bottom: 0; left: 10px; width: 130px; height: 100px; background: #e74c3c; border-radius: 5px; box-shadow: inset -10px -10px 20px rgba(0,0,0,0.3); }
+        .gift-bottom::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); width: 25px; height: 100%; background: #f1c40f; }
+        .gift-lid { position: absolute; top: 30px; left: 0; width: 150px; height: 35px; background: #c0392b; border-radius: 5px; z-index: 2; transition: transform 0.6s cubic-bezier(0.5, -0.5, 0.5, 1.5); box-shadow: 0 10px 15px rgba(0,0,0,0.4); }
+        .gift-lid::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); width: 25px; height: 100%; background: #f39c12; }
+        .gift-ribbon { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 60px; height: 30px; transition: opacity 0.3s; }
+        .gift-ribbon::before, .gift-ribbon::after { content: ''; position: absolute; width: 35px; height: 30px; border: 6px solid #f1c40f; border-radius: 50% 50% 0 50%; top: 0; left: -25px; }
+        .gift-ribbon::after { left: auto; right: -25px; border-radius: 50% 50% 50% 0; }
+        .gift-open .gift-lid { transform: translateY(-100px) rotateX(20deg) rotateZ(15deg); opacity: 0; }
+        .gift-open .gift-ribbon { opacity: 0; }
+
+        /* --- 3. Pure CSS Realistic Balloons --- */
+        .balloons { display: flex; gap: 40px; margin-bottom: 30px; height: 200px; align-items: flex-end; justify-content: center; }
+        .css-balloon { position: relative; width: 70px; height: 85px; background: radial-gradient(circle at 30% 30%, #ff7675, #d63031); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; cursor: pointer; animation: floatBalloon 3s ease-in-out infinite; box-shadow: inset -5px -5px 15px rgba(0,0,0,0.2), 0 10px 15px rgba(0,0,0,0.2); }
+        .css-balloon:nth-child(2) { background: radial-gradient(circle at 30% 30%, #74b9ff, #0984e3); animation-delay: 0.5s; }
+        .css-balloon:nth-child(3) { background: radial-gradient(circle at 30% 30%, #ffeaa7, #fdcb6e); animation-delay: 1s; }
+        .css-balloon::before { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); width: 10px; height: 10px; background: inherit; border-radius: 50%; }
+        .css-balloon::after { content: ''; position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%); width: 2px; height: 60px; background: rgba(255,255,255,0.6); }
+        @keyframes floatBalloon { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-25px) rotate(3deg); } }
+
+        /* --- 4. 3D Envelope --- */
+        .env-wrapper { position: relative; width: 200px; height: 130px; margin: 30px auto; cursor: pointer; perspective: 1000px; filter: drop-shadow(0 15px 20px rgba(0,0,0,0.5)); transition: transform 0.3s; }
+        .env-wrapper:hover { transform: scale(1.05); }
+        .env-back { position: absolute; width: 100%; height: 100%; background: #e0e0e0; border-radius: 5px; }
+        .env-letter { position: absolute; bottom: 10px; left: 10px; width: 180px; height: 110px; background: white; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; color: #e74c3c; transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 2; box-shadow: 0 5px 10px rgba(0,0,0,0.2); }
+        .env-front { position: absolute; width: 100%; height: 100%; border-left: 100px solid #bdc3c7; border-right: 100px solid #bdc3c7; border-bottom: 65px solid #ecf0f1; border-top: 65px solid transparent; z-index: 3; border-radius: 5px; }
+        .env-flap { position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 100px solid transparent; border-right: 100px solid transparent; border-top: 75px solid #dcdde1; z-index: 4; transform-origin: top; transition: transform 0.5s; }
+        .env-open .env-flap { transform: rotateX(180deg); z-index: 1; }
+        .env-open .env-letter { transform: translateY(-70px); z-index: 5; }
+
+        /* --- 5. Static Hanging Bulb (Perfectly Centered) --- */
+        #p5-interaction { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+        .hanging-bulb-container { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: transform 0.1s ease-out; margin-top: 20px; }
+        .hanging-bulb-container:active { transform: translateY(15px); } 
+        .bulb-wire { width: 4px; height: 70px; background: #aaa; box-shadow: 2px 0 5px rgba(0,0,0,0.5); z-index: 1; }
+        .bulb { font-size: 7.5rem; margin-top: -15px; text-shadow: 0 10px 20px rgba(0,0,0,0.5); transition: transform 0.3s, text-shadow 0.3s; z-index: 2; }
+        .bulb:hover { transform: scale(1.05); text-shadow: 0 0 30px rgba(255,255,0,0.6); }
+
+        /* Start Screen & Misc */
+        #balloon-messages { min-height: 80px; margin-top: 20px; display: flex; flex-direction: column; align-items: center; }
+        .b-msg { font-size: 1.3rem; font-weight: 600; background: rgba(255,255,255,0.9); padding: 10px 20px; border-radius: 15px; animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; color: #111; margin-top: 10px; text-align: center; }
+        .final-wish { font-size: 4.5rem; font-weight: 800; color: white; text-shadow: 0 0 20px rgba(255,255,255,1), 2px 4px 10px rgba(0,0,0,0.5); line-height: 1.2; text-transform: uppercase; letter-spacing: 3px; text-align: center; }
+        #start-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #111; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; }
+        #start-btn { padding: 15px 40px; font-size: 1.5rem; font-weight: bold; cursor: pointer; border-radius: 30px; border: none; background: #ff416c; color: white; box-shadow: 0 10px 20px rgba(255,65,108,0.4); transition: transform 0.2s; }
+        #start-btn:hover { transform: scale(1.1); }
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- AUDIO FILES -->
+    <!-- bgm.mp3 mariyu birthday.mp3 matrame nee folder lo undali -->
+    <audio id="bg-music" loop><source src="bgm.mp3" type="audio/mpeg"></audio>
+    <audio id="bday-song"><source src="birthday.mp3" type="audio/mpeg"></audio>
+    
+    <!-- Online Sound Effects -->
+    <audio id="sound-shoot"><source src="https://actions.google.com/sounds/v1/cartoon/whoosh_swish.ogg" type="audio/mpeg"></audio>
+    <audio id="sound-pop"><source src="https://actions.google.com/sounds/v1/cartoon/pop.ogg" type="audio/mpeg"></audio>
+    <audio id="sound-magic"><source src="https://actions.google.com/sounds/v1/cartoon/magic_chime_chord.ogg" type="audio/mpeg"></audio>
+
+    <div id="start-screen">
+        <h1 style="color:white; margin-bottom:30px;">Turn on Volume 🔊</h1>
+        <button id="start-btn" onclick="startSurprise()">Let's Start! ✨</button>
+    </div>
+
+    <!-- Page 1: Realistic Archery -->
+    <div id="page1" class="page">
+        <div id="p1-interaction">
+            <h2>Drag the arrow back and release! 👇</h2>
+            <div class="archery-container">
+                <svg class="bow-svg" viewBox="0 0 70 160" overflow="visible">
+                    <path d="M 35 10 Q 65 80 35 150" fill="none" stroke="#e6b37a" stroke-width="10" stroke-linecap="round" />
+                    <path id="bowString" class="" d="M 35 10 L 35 80 L 35 150" fill="none" stroke="#fff" stroke-width="2" />
+                </svg>
+                <div class="arrow-wrapper" id="draggableArrow">
+                    <svg class="arrow-svg" viewBox="0 0 120 25" overflow="visible">
+                        <line x1="0" y1="12.5" x2="105" y2="12.5" stroke="#f1c40f" stroke-width="5"/>
+                        <path d="M 0 12.5 L 15 2 L 15 23 Z" fill="#e74c3c"/>
+                        <polygon points="105,6 120,12.5 105,19" fill="#ecf0f1"/>
+                    </svg>
+                </div>
+                <div class="heart-target" id="targetHeart">🤍</div>
+            </div>
+        </div>
+        <div id="p1-content" class="content">
+            <h1>Perfect Shot! 💘</h1>
+            <p>Direct ga wish chesthe em baguntundi, andhuke ee games. Ready na?</p>
+            <button class="next-btn" onclick="nextPageWithBlast(2)">Next Surprise 🎉</button>
+        </div>
+    </div>
+
+    <!-- Page 2: 3D Gift Box -->
+    <div id="page2" class="page">
+        <div id="p2-interaction">
+            <h2>Tap to open the Gift! 🎁</h2>
+            <div class="gift-container" onclick="openRealisticGift(this)">
+                <div class="gift-box">
+                    <div class="gift-bottom"></div>
+                    <div class="gift-lid"><div class="gift-ribbon"></div></div>
+                </div>
+            </div>
+        </div>
+        <div id="p2-content" class="content">
+            <h1>Surprise! ✨</h1>
+            <p>Idi just chinna trailer matrame... inka mundhu mundhu chala undhi!</p>
+            <button class="next-btn" onclick="nextPageWithBlast(3)">Go Next 🎉</button>
+        </div>
+    </div>
+
+    <!-- Page 3: Pure CSS Balloons -->
+    <div id="page3" class="page">
+        <div id="p3-interaction">
+            <h2>Pop the Balloons! 🎈</h2>
+            <div class="balloons">
+                <div class="css-balloon" onclick="popBalloon(this, 'Naa Best Enemy Nuvve! 😜')"></div>
+                <div class="css-balloon" onclick="popBalloon(this, 'Eppudu ilage navvuthu undali! 😊')"></div>
+                <div class="css-balloon" onclick="popBalloon(this, 'You are the best sister! ❤️')"></div>
+            </div>
+            <div id="balloon-messages"></div>
+        </div>
+        <div id="p3-content" class="content">
+            <button class="next-btn" onclick="nextPageWithBlast(4)">Open Card 💌</button>
+        </div>
+    </div>
+
+    <!-- Page 4: 3D Envelope -->
+    <div id="page4" class="page">
+        <div id="p4-interaction">
+            <h2>Tap the Envelope ✉️</h2>
+            <div class="env-wrapper" id="envelope" onclick="openEnvelope()">
+                <div class="env-back"></div>
+                <div class="env-letter">💌</div>
+                <div class="env-front"></div>
+                <div class="env-flap"></div>
+            </div>
+        </div>
+        <div id="p4-content" class="content">
+            <h1>Special Message 💌</h1>
+            <p>Nee life lo prathi roju oka pandaga la undali. Enni sarlu kottukunna, I always want the best for you!</p>
+            <button class="next-btn" onclick="nextPageWithBlast(5)">Final Surprise 🎉</button>
+        </div>
+    </div>
+
+    <!-- Page 5: Centered Static Hanging Bulb -->
+    <div id="page5" class="page">
+        <div id="p5-interaction">
+            <h2 style="color: #fff; margin-bottom: 20px;">It's dark... Pull the bulb!</h2>
+            <div class="hanging-bulb-container" onclick="turnOnLights()">
+                <div class="bulb-wire"></div>
+                <div class="bulb">💡</div>
+            </div>
+        </div>
+        <div id="p5-content" class="content">
+            <h1 class="final-wish">🎉 HAPPY BIRTHDAY<br>CHELLI! 🎂</h1>
+            <p style="margin-top: 20px; font-size: 1.5rem; font-weight: 600;">Wishing you a very very Happy Birthday!</p>
+            <button class="next-btn" onclick="location.reload()" style="margin-top: 40px;">Play Again 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        const bgm = document.getElementById('bg-music');
+        const bdaySong = document.getElementById('bday-song');
+        const soundShoot = document.getElementById('sound-shoot');
+        const soundPop = document.getElementById('sound-pop');
+        const soundMagic = document.getElementById('sound-magic');
+
+        function playSound(audioEl) {
+            if(audioEl) {
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.log('Audio error:', e));
+            }
+        }
+
+        function startSurprise() {
+            document.getElementById('start-screen').style.display = 'none';
+            if(bgm) { bgm.volume = 0.5; bgm.play().catch(e=>console.log(e)); }
+            document.getElementById('page1').classList.add('active');
+            blastConfetti();
+        }
+
+        function blastConfetti() {
+            playSound(soundMagic);
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#ff0000', '#00ff00', '#0000ff', '#f1c40f'] });
+        }
+
+        function nextPageWithBlast(num) {
+            playSound(soundShoot); 
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page' + num).classList.add('active');
+            setTimeout(blastConfetti, 300);
+        }
+
+        // --- 1. Archery Logic ---
+        const arrow = document.getElementById('draggableArrow');
+        const bowString = document.getElementById('bowString');
+        const heart = document.getElementById('targetHeart');
+        let isDragging = false, startX = 0;
+
+        arrow.addEventListener('pointerdown', (e) => {
+            isDragging = true; startX = e.clientX;
+            arrow.style.transition = 'none'; bowString.style.transition = 'none';
+            bowString.classList.remove('vibrate-string');
+            arrow.setPointerCapture(e.pointerId);
+        });
+
+        arrow.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            let moveX = e.clientX - startX;
+            if (moveX < 0) { 
+                let pull = Math.max(moveX * 0.7, -90);
+                arrow.style.transform = `translateX(${pull}px)`; 
+                bowString.setAttribute('d', `M 35 10 L ${35 + pull} 80 L 35 150`);
+            }
+        });
+
+        arrow.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            let moveX = e.clientX - startX;
+            let pull = Math.max(moveX * 0.7, -90);
+            
+            bowString.style.transition = 'd 0.1s ease-out';
+            bowString.setAttribute('d', `M 35 10 L 35 80 L 35 150`);
+
+            if (pull < -50) { 
+                playSound(soundShoot); 
+                bowString.classList.add('vibrate-string'); 
+                arrow.style.transition = 'transform 0.15s cubic-bezier(0.55, 0.085, 0.68, 0.53)'; 
+                arrow.style.transform = 'translateX(350px)'; 
+                
+                setTimeout(() => {
+                    playSound(soundPop);
+                    heart.innerHTML = '💖'; heart.style.transform = 'scale(1.5)'; 
+                    arrow.style.opacity = '0'; 
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.5 }, zIndex: 100 });
+                    
+                    setTimeout(() => {
+                        playSound(soundMagic);
+                        document.getElementById('p1-interaction').classList.add('hidden');
+                        document.getElementById('p1-content').classList.add('show-content');
+                    }, 600);
+                }, 150); 
+            } else { 
+                arrow.style.transition = 'transform 0.3s ease-out'; 
+                arrow.style.transform = 'translateX(0px)';
+            }
+        });
+
+        // --- 2. 3D Gift Box ---
+        function openRealisticGift(el) {
+            if(el.classList.contains('gift-open')) return;
+            el.classList.add('gift-open');
+            playSound(soundMagic);
+            
+            setTimeout(() => {
+                let rect = el.getBoundingClientRect();
+                confetti({ particleCount: 150, spread: 120, origin: { x: (rect.left + rect.width/2)/window.innerWidth, y: (rect.top)/window.innerHeight } });
+            }, 300);
+            
+            setTimeout(() => { 
+                document.getElementById('p2-interaction').classList.add('hidden'); 
+                document.getElementById('p2-content').classList.add('show-content'); 
+            }, 1000);
+        }
+
+        // --- 3. Balloons ---
+        let poppedCount = 0;
+        function popBalloon(el, message) {
+            if(el.style.opacity === '0') return; 
+            playSound(soundPop); 
+            
+            let rect = el.getBoundingClientRect();
+            confetti({ particleCount: 80, spread: 60, origin: { x: (rect.left + (rect.width / 2)) / window.innerWidth, y: (rect.top + (rect.height / 2)) / window.innerHeight } });
+            
+            el.style.transform = 'scale(0)'; el.style.opacity = '0';
+            let newMsg = document.createElement('div'); newMsg.className = 'b-msg'; newMsg.innerText = message;
+            document.getElementById('balloon-messages').appendChild(newMsg);
+            
+            poppedCount++;
+            if(poppedCount === 3) { setTimeout(() => { playSound(soundMagic); document.getElementById('p3-content').classList.add('show-content'); }, 1000); }
+        }
+
+        // --- 4. 3D Envelope ---
+        function openEnvelope() {
+            const env = document.getElementById('envelope');
+            if(env.classList.contains('env-open')) return;
+            env.classList.add('env-open');
+            playSound(soundPop);
+            
+            setTimeout(() => {
+                playSound(soundMagic); 
+                confetti({ particleCount: 150, spread: 90, origin: { y: 0.5 } });
+                setTimeout(() => { document.getElementById('p4-interaction').classList.add('hidden'); document.getElementById('p4-content').classList.add('show-content'); }, 800);
+            }, 500);
+        }
+
+        // --- 5. Bulb & Final Celebration ---
+        function turnOnLights() {
+            playSound(soundMagic);
+            
+            if (bgm) { bgm.pause(); }
+            if (bdaySong) { bdaySong.currentTime = 0; bdaySong.volume = 1.0; bdaySong.play().catch(e => console.log('Bday Audio error:', e)); }
+
+            const page5 = document.getElementById('page5');
+            // Celebration background image applied here
+            page5.style.background = "linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=1920') center/cover";
+            document.getElementById('p5-interaction').classList.add('hidden');
+            
+            setTimeout(() => {
+                document.getElementById('p5-content').classList.add('show-content');
+                
+                let duration = 3.5 * 1000; 
+                let animationEnd = Date.now() + duration;
+                
+                let interval = setInterval(function() {
+                    let timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) { return clearInterval(interval); }
+                    confetti({ particleCount: 50, startVelocity: 30, spread: 360, origin: { x: Math.random(), y: Math.random() - 0.2 }, zIndex: 100 });
+                }, 250);
+            }, 600);
+        }
+    </script>
+</body>
+</html>
